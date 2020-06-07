@@ -1,11 +1,11 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
-from core.models import Tag
+from core.models import Tag, Components, Services
 
 def sample_user(email='test@test.com', password='testpassword'):
     """ Create Sample user """
-    return get_user_model().objects.create_user(email,password)
+    return get_user_model().objects.create_user(email, password)
 
 
 class ModelTests(TestCase):
@@ -54,8 +54,24 @@ class ModelTests(TestCase):
             name='Electrical'
         )
 
-        self.assertEqual(str(tag), tag.name) 
+        self.assertEqual(str(tag), tag.name)
+
+    def test_components_str(self):
+        """ test the components String representation """
+        components = models.Components.objects.create(
+            user=sample_user(),
+            name='H/w distribution'
+        )
+
+        self.assertEqual(str(components), components.name)
 
 
+    def test_services_str(self):
+        """ Test the job string representation """
 
-
+        services = models.Services.objects.create(
+            user=sample_user(),
+            title='Title of the se',
+            price=5.00
+        )
+        self.assertEqual(str(services), services.title)

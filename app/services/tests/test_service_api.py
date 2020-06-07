@@ -28,6 +28,7 @@ class PrivateTagsApiTests(TestCase):
     """  Test the authorized user """
 
     def setUp(self):
+        self.client = APIClient()
         self.user = get_user_model().objects.create_user(
             'test@gmail.com',
             'testpassword'
@@ -67,6 +68,36 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
 
         self.assertEqual(res.data[0]['name'], tag.name)
+
+    def test_create_tag_successfull(self):
+        """ Test Creating a New tag """
+
+        payload = {'name': 'Test tag'}
+
+        self.client.post(TAG_URLS, payload)
+
+        exists = Tag.objects.filter(
+            user=self.user,
+            name=payload['name']
+
+        ).exists()
+
+        self.assertTrue(exists)
+
+    def test_create_tag_invalid(self):
+        """ Test Creating a new tag with invalid payload """
+
+        payload = {'name' : ''}
+        res = self.client.post(TAG_URLS, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        
+
+
+
+
+
 
 
 
