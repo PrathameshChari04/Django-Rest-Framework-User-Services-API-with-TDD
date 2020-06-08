@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Tag, Components, Services
+from core.models import Tag, Components, Service
 
 class TagSerializers(serializers.ModelSerializer):
     """  Serializer for tag object """
@@ -20,7 +20,7 @@ class ComponentSerializers(serializers.ModelSerializer):
 
 class ServiceSerializer(serializers.ModelSerializer):
     """ Serializer for Servicess """
-    compoents = serializers.PrimaryKeyRelatedField(
+    components = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Components.objects.all()
     )
@@ -30,12 +30,12 @@ class ServiceSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Services
+        model = Service
         fields = (  
                 'id', 'title', 'components', 'tags',  
                 'price', 'link'
         )
-        read_only_fields = ('id')
+        read_only_fields = ('id',)
 
 class ServiceDetailSerializer(ServiceSerializer):
     """ Serialer Services details """

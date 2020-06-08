@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
-from core.models import Tag, Components, Services
+from core.models import Tag, Components, Service
 
 def sample_user(email='test@test.com', password='testpassword'):
     """ Create Sample user """
@@ -69,7 +69,7 @@ class ModelTests(TestCase):
     def test_services_str(self):
         """ Test the job string representation """
 
-        services = models.Services.objects.create(
+        services = models.Service.objects.create(
             user=sample_user(),
             title='Title of the se',
             price=5.00

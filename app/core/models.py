@@ -31,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_staff= models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=True)
 
     objects = UserManager()
 
@@ -45,8 +45,6 @@ class Tag(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-
-
     )
 
     def __str__(self):
@@ -59,14 +57,13 @@ class Components(models.Model):
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
         return self.name
 
-class Services(models.Model):
+class Service(models.Model):
     """ Services Object """
 
     user = models.ForeignKey(

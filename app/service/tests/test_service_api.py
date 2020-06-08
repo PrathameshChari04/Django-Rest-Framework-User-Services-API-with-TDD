@@ -6,10 +6,10 @@ from rest_framework.test import APIClient
 
 from core.models import Tag
 
-from services.serializers import TagSerializers
+from service.serializers import TagSerializers
 
 
-TAG_URLS = reverse('services:tag-list')
+TAG_URLS = reverse('service:tag-list')
 
 class PublicTagsAPITests(TestCase):
     """ Test this publicly avaliable API """
@@ -41,7 +41,7 @@ class PrivateTagsApiTests(TestCase):
         Tag.objects.create(user=self.user, name='Electrical')
         Tag.objects.create(user=self.user, name='Transformer')
 
-        res= self.client.get(TAG_URLS)
+        res = self.client.get(TAG_URLS)
 
         tags = Tag.objects.all().order_by('-name')
 

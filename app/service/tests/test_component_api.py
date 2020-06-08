@@ -5,10 +5,10 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Components
-from services.serializers import ComponentSerializers
+from service.serializers import ComponentSerializers
 
 
-COMPONENT_URLS = reverse('services:components-list')
+COMPONENT_URLS = reverse('service:components-list')
 
 class PublicComponentsAPITests(TestCase):
     """ Test this publicly avaliable API """
