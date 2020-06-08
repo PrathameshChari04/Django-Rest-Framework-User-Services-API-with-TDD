@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
 from core.models import Tag, Components, Service
+from unittest.mock import patch
 
 def sample_user(email='test@test.com', password='testpassword'):
     """ Create Sample user """
@@ -75,3 +76,18 @@ class ModelTests(TestCase):
             price=5.00
         )
         self.assertEqual(str(services), services.title)
+
+    @patch('uuid.uuid4')
+    def test_services_uid(self, mock_uuid):
+        """ test thet image is saved in correct location """
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.services_images_file_path(None, 'my_image.jpg')
+
+        exp_path = f'uploads/services/{uuid}.jpg'
+        self.assertEqual(file_path, exp_path)
+        
+
+
+
+
