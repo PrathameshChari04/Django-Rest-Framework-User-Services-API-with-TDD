@@ -237,6 +237,65 @@ class ServiceImageUploadTest(TestCase):
         url = image_upload_url(self.service_id)
         res = self.client.post(url, {'image': 'no_image'}, format='multipart')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_services_by_tag(self):
+        """ Test returning services on bases of tags """
+
+        service1 = sample_services(user=self.user, title='Mechanical Work 1')
+        service2 = sample_services(user=self.user, title='Mechanical Work 2')
+        service3 = sample_services(user=self.user, title='Mechanical Work 3')
+
+        tag1 = sample_tag(user=self.user, name='Mech1')
+        tag2 = sample_tag(user=self.user, name='Mech2')
+        tag3 = sample_tag(user=self.user, name='mech3')
+
+        service1.tags.add(tag1)
+        service2.tags.add(tag2)
+        service3.tags.add(tag3)
+
+        res = self.client.get(
+            SERVICES_URL,
+            {'tags': f'{tag1.id},{tag2.id},{tag3.id}'}
+        )
+
+        serializer1 = ServiceSerializer(service1)
+        serializer2 = ServiceSerializer(service2)
+        serializer3 = ServiceSerializer(service3)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_services_by_components(self):
+        """ Test returning services on bases of components """
+
+        service1 = sample_services(user=self.user, title='Mechanical Work 1')
+        service2 = sample_services(user=self.user, title='Mechanical Work 2')
+        service3 = sample_services(user=self.user, title='Mechanical Work 3')
+
+        component1 = sample_componenets(user=self.user, name='Mech1')
+        component2 = sample_componenets(user=self.user, name='Mech2')
+        component3 = sample_componenets(user=self.user, name='mech3')
+
+        service1.components.add(component1)
+        service2.components.add(component2)
+        service3.components.add(component3)
+
+        res = self.client.get(
+            SERVICES_URL,
+            {'tags': f'{component1.id},{component2.id},{component3.id}'}
+        )
+
+        serializer1 = ServiceSerializer(service1)
+        serializer2 = ServiceSerializer(service2)
+        serializer3 = ServiceSerializer(service3)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+
+
          
         
 

@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Tag
+from core.models import Tag, Service
 
 from service.serializers import TagSerializers
 
@@ -91,6 +91,58 @@ class PrivateTagsApiTests(TestCase):
         res = self.client.post(TAG_URLS, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_retrieve_tags_assigned_to_services(self):
+        """  Test Filtering those tags according to services """
+
+        tag1 = Tag.objects.create(user=self.user, name='testtag1')
+        tag2 = Tag.objects.create(user=self.user, name='testtag2')
+        services = Service.objects.create(
+            title='testing our test',
+            price=5.00,
+            user=self.user
+
+
+        )
+
+        services.tags.add(tag1)
+
+        res = self.client.get(TAG_URLS, {'assigned_only': 1})
+        
+        serializer1 = TagSerializers(tag1)
+        serializer2 = TagSerializers(tag2)
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_retrieve_tags_assigned_with_unique(self):
+        """ Test Filtering tags by assiged return unique items """
+
+        tag = Tag.objects.create(user=self.user , name='testtag')
+        Tag.objects.create(user=self.user, name='testtag2' )
+        services1 = Service.objects.create(
+            title='testing unique test',
+            price=50.00,
+            user=self.user
+        )
+        services1.tags.add(tag)
+        services2 = Service.objects.create(
+            title='testing unique test',
+            price=10.00,
+            user=self.user
+        )
+        services2.tags.add(tag)
+
+        res = self.client.get(TAG_URLS, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)
+
+
+
+
+
+
+
 
         
 

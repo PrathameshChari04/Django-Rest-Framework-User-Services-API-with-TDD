@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Components
+from core.models import Components, Service
 from service.serializers import ComponentSerializers
 
 
@@ -89,3 +89,47 @@ class PrivateComponentsApiTests(TestCase):
         res = self.client.post(COMPONENT_URLS, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_components_assigned_to_services(self):
+        """  Test retrieve components to services """
+
+        component1 = Components.objects.create(user=self.user, name='testcomponent')
+        component2 = Components.objects.create(user=self.user, name='testcomponent2')
+
+        services = Service.objects.create(
+            title='Testing service',
+            price=5.00,
+            user=self.user
+        )
+
+        services.components.add(component1)
+        
+        res = self.client.get(COMPONENT_URLS, {'assigned_only': 1})
+
+        serializer1 = ComponentSerializers(component1)
+        serializer2 = ComponentSerializers(component2)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_retrieve_components_assigned_with_unique(self):
+        """ Test Filtering components by assiged return unique items """
+
+        component = Components.objects.create(user=self.user, name='testtag')
+        Components.objects.create(user=self.user, name='testtag2' )
+        services1 = Service.objects.create(
+            title='testing unique test',
+            price=50.00,
+            user=self.user
+        )
+        services1.components.add(component)
+        services2 = Service.objects.create(
+            title='testing unique test',
+            price=10.00,
+            user=self.user
+        )
+        services2.components.add(component)
+
+        res = self.client.get(COMPONENT_URLS, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)
