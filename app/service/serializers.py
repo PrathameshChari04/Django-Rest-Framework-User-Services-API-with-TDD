@@ -39,8 +39,18 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 class ServiceDetailSerializer(ServiceSerializer):
     """ Serialer Services details """
-    compoents = ComponentSerializers(many=True, read_only=True)
+    components = ComponentSerializers(many=True, read_only=True)
     tags = TagSerializers(many=True, read_only=True)
+
+class ImageUploadSerializer(serializers.ModelSerializer):
+    """ Serializer for uploading images to services """
+    
+    class Meta:
+        model = Service
+        fields = ('id', 'image')
+        read_only_fields = ('id',)
+
+
 
 
 

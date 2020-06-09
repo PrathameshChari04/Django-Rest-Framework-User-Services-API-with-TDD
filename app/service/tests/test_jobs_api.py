@@ -1,3 +1,6 @@
+import tempfile
+import os
+from PIL import Image
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
@@ -9,6 +12,10 @@ from service.serializers import ServiceSerializer, ServiceDetailSerializer
 
 
 SERVICES_URL = reverse('service:services-list')
+
+def image_upload_url(service_id):
+    """ Return url for serivce """
+    return reverse('service:service-upload-image', args=[service_id])
 
 def detail_url(services_id):
     """ return services details Url """
@@ -196,6 +203,41 @@ class PrivateservicesApiTests(TestCase):
         self.assertEqual(services.price, payload['price'])
         tags = services.tags.all()
         self.assertEqual(len(tags), 0)
+
+class ServiceImageUploadTest(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'user@test.com',
+            'testpass'
+        )
+        self.client.force_authenticate(self.user)
+        self.services = sample_services(user=self.user)
+
+    def tearDown(self):
+        self.services.image.delete()
+
+    def test_upload_image_to_serivce(self):
+        """ Test uploading an image to service """
+        url = image_upload_url(self.service_id)
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
+            img = Image.new('RGB', (10, 10))
+            img.save(ntf, format='JPEG')
+            ntf.seek(0)
+            res = self.client.post(url, {'image': ntf}, format='multipart')
+
+        self.services.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual('image', res.data)
+        self.assertTrue(os.path.exists(self.services.image.path))
+
+    def test_upload_image_bad_request(self):
+        """ Test Uploading for bad request """
+        url = image_upload_url(self.service_id)
+        res = self.client.post(url, {'image': 'no_image'}, format='multipart')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+         
         
 
 
